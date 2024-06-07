@@ -1,7 +1,9 @@
 import ReportCard from "../components/ReportCard";
+import { useAppSelector } from "../redux";
+import { ROLE } from "../roleEnumes";
 
 function Templates() {
-  const role = parseInt(localStorage.getItem("role") as string);
+  const { role } = useAppSelector((state) => state.auth);
 
   return (
     <div className="lets-do container">
@@ -9,7 +11,7 @@ function Templates() {
         <div className="row">
           <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 className="h2">Templates</h1>
-            {role === 1 && (
+            {role === ROLE.ADMIN && (
               <div className="btn-toolbar mb-2 mb-md-0">
                 <button
                   type="button"
