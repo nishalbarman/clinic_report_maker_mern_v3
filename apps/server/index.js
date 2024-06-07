@@ -1,7 +1,6 @@
 const express = require("express");
-const session = require("express-session");
 const mongoose = require("mongoose");
-const authRoutes = require("./routes/auth.routes");
+const authRoutes = require("./routes/auth/login.auth.routes");
 const config = require("./config");
 
 require("dotenv").config();
@@ -16,16 +15,13 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    console.log(err);
+    process.exit(1);
+  });
 
 // Session setup
-app.use(
-  session({
-    secret: "your_secret_key",
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+app.use(express.json());
 
 // Use authentication routes
 app.use("/auth", authRoutes);
