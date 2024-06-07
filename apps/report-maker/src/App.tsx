@@ -24,7 +24,7 @@ function App() {
   }, []);
 
   const templatesAuthorizedRoles = useMemo(() => {
-    return new Set([ROLE.TECHNICIAN, ROLE.USER]);
+    return new Set([ROLE.ADMIN, ROLE.TECHNICIAN]);
   }, []);
 
   return (
