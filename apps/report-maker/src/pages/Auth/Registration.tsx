@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { convertImagesToBase64 } from "../../helper";
 import axios, { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 type formDataProps = {
   name: string;
@@ -61,6 +62,10 @@ function RegistrationForm() {
       return;
     }
 
+    const id = toast.loading(
+      "Please wait... We are creating a new account for you."
+    );
+
     try {
       const result = await axios.post(
         `${import.meta.env.VITE_SERVER_API}/auth/register`,
@@ -71,16 +76,33 @@ function RegistrationForm() {
         setSuccess(result.data.message);
         setError("");
         setFormData(inititalFormData);
+        toast.update(id, {
+          type: "success",
+          autoClose: 2000,
+          isLoading: false,
+          render:
+            result.data.message ||
+            "Registration successful, You may login now.",
+        });
         navigate("/auth/login");
       }
     } catch (error) {
       console.error(error);
+      let err = "";
       if (error instanceof AxiosError) {
         setError(error.response?.data?.message || error.message);
+        err = error.response?.data?.message || error.message;
       } else {
         setError((error as any).message || "Registration failed");
+        err = (error as any).message || "Registration failed";
       }
       setSuccess("");
+      toast.update(id, {
+        type: "error",
+        autoClose: 2000,
+        isLoading: false,
+        render: err,
+      });
     }
   };
 

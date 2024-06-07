@@ -3,13 +3,12 @@ import { useMatch } from "react-router-dom";
 
 import HeaderAdmin from "./HeaderAdmin";
 import HeaderNonAuth from "./HeaderNonAuth";
+import { useAppSelector } from "../redux";
 
-type HeaderProps = {
-  token: string | null;
-};
-
-const Header: React.FC<HeaderProps> = ({ token }) => {
+const Header: React.FC = () => {
   const matcher = useMatch("/auth/*");
+
+  const token = useAppSelector((state) => state.auth.token);
 
   if (Boolean(matcher)) return null;
   if (token) {

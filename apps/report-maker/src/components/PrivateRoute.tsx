@@ -1,19 +1,32 @@
 import { Navigate } from "react-router-dom";
 import { useAppSelector } from "../redux";
+import { toast } from "react-toastify";
 
 type PrivateRouteProps = {
   children?: React.ReactNode;
-  requiredRole?: number[];
+  authorizedRoles: Set<number>;
 };
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({
   children,
-  requiredRole,
+  authorizedRoles,
 }) => {
-  const { jwtToken, role } = useAppSelector((state) => state.auth);
+  const { token, role } = useAppSelector((state) => state.auth);
 
-  if (!jwtToken || !role || isNaN(role) || !requiredRole?.includes(role))
+  console.log(token, role, authorizedRoles);
+  console.log(
+    !token || role === undefined || isNaN(role) || !authorizedRoles.has(role)
+  );
+
+  if (
+    !token ||
+    role === undefined ||
+    isNaN(role) ||
+    !authorizedRoles.has(role)
+  ) {
+    toast.error("You are not authorized to view this page!");
     return <Navigate to={"/auth/login"} />;
+  }
 
   return children;
 };

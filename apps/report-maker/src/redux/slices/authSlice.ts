@@ -6,7 +6,7 @@ type User = {
   phone: string | undefined;
   pic: string | undefined;
   role: number | undefined;
-  jwtToken: string | undefined;
+  token: string | undefined;
 };
 
 const initialState: User = {
@@ -14,7 +14,7 @@ const initialState: User = {
   email: undefined,
   phone: undefined,
   pic: undefined,
-  jwtToken: undefined,
+  token: undefined,
   role: undefined,
 };
 
@@ -26,7 +26,7 @@ export const authSlice = createSlice({
       state.name = action.payload.name;
       state.email = action.payload.email;
       state.phone = action.payload.phone;
-      state.jwtToken = action.payload.jwtToken;
+      state.token = action.payload.token;
       state.role = action.payload.role;
       state.pic = action.payload.pic;
     },

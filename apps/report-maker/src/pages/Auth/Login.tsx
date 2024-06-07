@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { setUserAuthData, useAppDispatch } from "../../redux";
+import { toast } from "react-toastify";
 
 const LoginForm: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -13,12 +14,53 @@ const LoginForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  async function fetchAndConvertToBase64(imageUrl: string) {
+    try {
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const base64String = await blobToBase64(blob);
+
+      return base64String;
+    } catch (error) {
+      console.error("Error fetching or converting image:", error);
+      throw error;
+    }
+  }
+
+  function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string)?.split(",")[1]);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // const [localPictureString, setLocalProfilePicture] = useState<string>();
+
+  // useEffect(() => {
+  //   if (pic !== undefined) {
+  //     fetchAndConvertToBase64(pic)
+  //       .then((localProfilePicture) => {
+  //         console.log(localPictureString);
+  //         setLocalProfilePicture(localProfilePicture);
+  //       })
+  //       .catch((err) => {
+  //         console.error(err);
+  //       });
+  //   }
+  // }, [pic]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     setLoading(true);
     setError(null);
-
+    const id = toast.loading("Please wait...We are logging you in");
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_API}/auth/login`,
@@ -26,15 +68,41 @@ const LoginForm: React.FC = () => {
       );
 
       if (response.data?.user) {
-        // localStorage.setItem("token", response.data.token);
+        // const localPictureString = await fetchAndConvertToBase64(
+        //   response.data?.user.pic
+        // );
+        // response.data.user.pic = localPictureString;
+
         dispatch(setUserAuthData(response.data.user));
         navigate("/dashboard"); // Redirect to the dashboard or another page
       } else {
         setError("Unknown error occured. Please try again.");
       }
+      toast.update(id, {
+        type: "success",
+        autoClose: 2000,
+        isLoading: false,
+        render: response.data?.message || "Login successful",
+      });
     } catch (err) {
       console.log(err);
-      setError("Invalid credentials. Please try again.");
+
+      let message = "";
+
+      if (err instanceof AxiosError) {
+        message = err.response?.data?.message;
+      }
+
+      message = (err as Error).message;
+
+      toast.update(id, {
+        type: "error",
+        autoClose: 2000,
+        isLoading: false,
+        render: message || "Invalid credentials. Please try again.",
+      });
+
+      // setError("Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }

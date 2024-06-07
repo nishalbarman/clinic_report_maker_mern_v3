@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 // import "../css/headers.css";
 // import "../css/insert_card.css";
 
 import headerLogo from "../assets/logo/hk.png";
 import { Link } from "react-router-dom";
+import { useAppSelector } from "../redux";
+import axios from "axios";
 
 const Header: React.FC = () => {
-  const BASE_URL: string = "http://localhost:5173/";
+  const pic = useAppSelector((state) => state.auth.pic);
 
   return (
     <header className="p-3 mb-3 border-bottom">
@@ -138,7 +140,17 @@ const Header: React.FC = () => {
               className="d-block link-dark text-decoration-none dropdown-toggle"
               data-bs-toggle="dropdown"
               aria-expanded="false">
-              <span className="material-symbols-outlined">account_circle</span>
+              {/* <span className="material-symbols-outlined">account_circle</span> */}
+
+              <img
+                className="bi me-2"
+                width="45"
+                height="45"
+                role="img"
+                alt="Header Logo"
+                aria-label="Report Maker"
+                src={pic}
+              />
             </div>
             <ul className="dropdown-menu text-small">
               <li>

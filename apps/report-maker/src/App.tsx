@@ -16,20 +16,26 @@ import AddUserModal from "./modals/AddUserModal";
 import ReportCardRecords from "./pages/ReportCardRecords";
 import PrivateRoute from "./components/PrivateRoute";
 import { ROLE } from "./roleEnumes";
+import { useMemo } from "react";
 
 function App() {
-  const jwtToken = localStorage.getItem("token");
+  const dashboardAuthorizedRoles = useMemo(() => {
+    return new Set([ROLE.ADMIN, ROLE.TECHNICIAN]);
+  }, []);
+
+  const templatesAuthorizedRoles = useMemo(() => {
+    return new Set([ROLE.TECHNICIAN, ROLE.USER]);
+  }, []);
 
   return (
     <BrowserRouter>
-      <Header token={jwtToken} />
+      <Header />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute
-              requiredRole={[ROLE.ADMIN, ROLE.USER, ROLE.TECHNICIAN]}>
+            <PrivateRoute authorizedRoles={dashboardAuthorizedRoles}>
               <Dashboard />
             </PrivateRoute>
           }
@@ -37,8 +43,7 @@ function App() {
         <Route
           path="/templates"
           element={
-            <PrivateRoute
-              requiredRole={[ROLE.ADMIN, ROLE.USER, ROLE.TECHNICIAN]}>
+            <PrivateRoute authorizedRoles={templatesAuthorizedRoles}>
               <Templates />
             </PrivateRoute>
           }
@@ -49,7 +54,7 @@ function App() {
         <Route
           path="/user-list"
           element={
-            <PrivateRoute requiredRole={[ROLE.ADMIN]}>
+            <PrivateRoute authorizedRoles={new Set([ROLE.ADMIN])}>
               <AuthUserList />
             </PrivateRoute>
           }
