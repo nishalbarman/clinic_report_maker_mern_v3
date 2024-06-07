@@ -1,0 +1,32 @@
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "segoe ui", roboto, oxygen,
+    ubuntu, cantarell, "fira sans", "droid sans", "helvetica neue", Arial,
+    sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hide {
+  display: none;
+}
+
+.body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* .card:hover {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  transition: 0.3s;
+  height: 15.2rem;
+  width: 13.1rem;
+  cursor: pointer;
+} */
+
+::selection {
+  background-color: black;
+  color: whitesmoke;
+}

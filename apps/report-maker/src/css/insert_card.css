@@ -1,0 +1,92 @@
+.form-style-3 {
+  max-width: 450px;
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+.form-style-3 label {
+  display: block;
+  margin-bottom: 10px;
+}
+.form-style-3 label > span {
+  float: left;
+  width: 100px;
+  color: #004080;
+  /* color: #f072a9; */
+  font-weight: bold;
+  font-size: 13px;
+  text-shadow: 1px 1px 1px #fff;
+}
+.form-style-3 fieldset {
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  margin: 0px 0px 10px 0px;
+  border: 1px solid #59ffff;
+  padding: 20px;
+  background: #eaffff;
+  box-shadow: inset 0px 0px 15px #59ffff;
+  -moz-box-shadow: inset 0px 0px 15px #59ffff;
+  -webkit-box-shadow: inset 0px 0px 15px #59ffff;
+}
+.form-style-3 fieldset legend {
+  color: #004080;
+  border-top: 1px solid #59ffff;
+  border-left: 1px solid #59ffff;
+  border-right: 1px solid #59ffff;
+  border-radius: 5px 5px 0px 0px;
+  -webkit-border-radius: 5px 5px 0px 0px;
+  -moz-border-radius: 5px 5px 0px 0px;
+  background: #eaffff;
+  padding: 0px 8px 3px 8px;
+  box-shadow: -0px -1px 2px #f1f1f1;
+  -moz-box-shadow: -0px -1px 2px #f1f1f1;
+  -webkit-box-shadow: -0px -1px 2px #f1f1f1;
+  font-weight: normal;
+  font-size: 12px;
+}
+.form-style-3 textarea {
+  width: 250px;
+  height: 100px;
+}
+.form-style-3 input[type="text"],
+.form-style-3 input[type="date"],
+.form-style-3 input[type="datetime"],
+.form-style-3 input[type="number"],
+.form-style-3 input[type="search"],
+.form-style-3 input[type="time"],
+.form-style-3 input[type="url"],
+.form-style-3 input[type="email"],
+.form-style-3 select,
+.form-style-3 textarea {
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border: 1px solid #59ffff;
+  outline: none;
+  color: #004080;
+  padding: 5px 8px 5px 8px;
+  box-shadow: inset 1px 1px 4px #eaffff;
+  -moz-box-shadow: inset 1px 1px 4px #eaffff;
+  -webkit-box-shadow: inset 1px 1px 4px #eaffff;
+  background: #ffffff;
+  width: 50%;
+}
+.form-style-3 input[type="submit"],
+.form-style-3 input[type="button"],
+.card-insert-btn {
+  background: #004080;
+  border: 1px solid #004080;
+  padding: 5px 15px 5px 15px;
+  color: #f1f1f1;
+  box-shadow: inset -1px -1px 3px #004080;
+  -moz-box-shadow: inset -1px -1px 3px #004080;
+  -webkit-box-shadow: inset -1px -1px 3px #004080;
+  border-radius: 3px;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  font-weight: bold;
+}
+.required {
+  color: red;
+  font-weight: normal;
+}
