@@ -1,6 +1,6 @@
 const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose");
-const authRoutes = require("./routes/auth/login.auth.routes");
 const config = require("./config");
 
 require("dotenv").config();
@@ -8,23 +8,30 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+// ANSI escape codes for text color
+const red = "\x1b[31m";
+const green = "\x1b[32m";
+const reset = "\x1b[0m";
+
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB connected"))
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log(green, "MongoDB connected", reset))
   .catch((err) => {
-    console.log(err);
+    console.log(red, err, reset);
     process.exit(1);
   });
 
-// Session setup
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.json());
 
 // Use authentication routes
-app.use("/auth", authRoutes);
+app.use("/auth/login", require("./routes/auth/login.routes"));
+app.use("/auth/register", require("./routes/auth/register.routes"));
 
 // Routes
 app.get("/", (req, res) => {

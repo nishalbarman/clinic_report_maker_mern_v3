@@ -14,6 +14,8 @@ import UploadReportManually from "./modals/UploadReportManually";
 import AddUserModal from "./modals/AddUserModal";
 
 import ReportCardRecords from "./pages/ReportCardRecords";
+import PrivateRoute from "./components/PrivateRoute";
+import { ROLE } from "./roleEnumes";
 
 function App() {
   const jwtToken = localStorage.getItem("token");
@@ -23,12 +25,35 @@ function App() {
       <Header token={jwtToken} />
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/templates" element={<Templates />} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute
+              requiredRole={[ROLE.ADMIN, ROLE.USER, ROLE.TECHNICIAN]}>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/templates"
+          element={
+            <PrivateRoute
+              requiredRole={[ROLE.ADMIN, ROLE.USER, ROLE.TECHNICIAN]}>
+              <Templates />
+            </PrivateRoute>
+          }
+        />
         <Route path="/report-card-list" element={<ReportCardRecords />} />
         <Route path="/patient-report-list" element={<PatientReportsList />} />
         <Route path="/profile-setting" element={<ProfileSetting />} />
-        <Route path="/user-list" element={<AuthUserList />} />
+        <Route
+          path="/user-list"
+          element={
+            <PrivateRoute requiredRole={[ROLE.ADMIN]}>
+              <AuthUserList />
+            </PrivateRoute>
+          }
+        />
         <Route path="/auth/login" element={<LoginForm />} />
         <Route path="/auth/reg" element={<RegistrationForm />} />
       </Routes>

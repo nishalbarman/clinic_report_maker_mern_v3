@@ -8,8 +8,8 @@ export const tsup = {
   minify: true,
   bundle: true,
   skipNodeModulesBundle: false,
-  entryPoints: ["src/index.js"],
+  entryPoints: ["src/index.ts"],
   watch: env === "development",
   outDir: "dist",
-  entry: ["src/**/*.js"], //include all files under src
+  entry: ["src/**/*.ts"], //include all files under src
 };

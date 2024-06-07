@@ -1,13 +1,18 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
+// ANSI escape codes for text color
+const red = "\x1b[31m";
+const green = "\x1b[32m";
+const reset = "\x1b[0m";
+
 const getTokenDetails = (token) => {
   try {
     const secret = process.env.JWT_SECRET;
     const decoded = jwt.verify(token, secret);
     return decoded;
   } catch (err) {
-    console.error("JWT Decode Error -->", err);
+    console.error(red, "JWT Decode Error -->", err, reset);
     return null;
   }
 };
@@ -18,7 +23,7 @@ const globalErrorHandler = ({
   statusCode = 500,
   message = undefined,
 }) => {
-  console.error(error);
+  console.error(red, error, reset);
   if (error !== undefined && error instanceof mongoose.Error && error?.errors) {
     const errArray = Object.values(error.errors).map(
       (properties) => properties.message

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { getStorage } from "firebase-admin/storage";
 import admin from "firebase-admin";
+const { Base64Decode } = require("base64-stream");
 
 import { decryptToString } from "./secure-file";
 
@@ -45,7 +46,48 @@ interface NotificationPayload {
 
 type Token = string;
 
-class FirebaseUtils {
+interface ImageData {
+  base64String: string;
+  type: string;
+}
+
+// interface IFirebaseUtils {
+//   uploadImage: () => Promise<string>;
+//   uploadBulkImages: () => Promise<string[]>;
+//   saveFirebaseTokenToDatabase: () => Promise<void>;
+//   getUserFirebaseTokenFromDatabase: () => Promise<Token | null>;
+//   getAllTokens: () => Promise<Token[]>;
+//   sendNotificationToAllTokens: () => Promise<void>;
+//   sendNotificationToUser: () => Promise<void>;
+// }
+
+declare class FirebaseUtilsI {
+  static uploadImage({
+    path,
+    buffer,
+    type,
+  }: UploadImagePayload): Promise<string>;
+  static bufferStreamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer>;
+  static uploadBulkImages(
+    filesArray: ImageData[],
+    path: string
+  ): Promise<string[]>;
+  static saveFirebaseTokenToDatabase({
+    firebaseMessagingToken,
+    userId,
+  }: FirebaseTokenPayload): Promise<void>;
+  static getUserFirebaseTokenFromDatabase({
+    userId,
+  }: UserIdPayload): Promise<Token | null>;
+  static getAllTokens(): Promise<Token[]>;
+  static sendNotificationToAllTokens(
+    payload: NotificationPayload
+  ): Promise<void>;
+  static sendNotificationToUser(payload: NotificationPayload): Promise<void>;
+  constructor();
+}
+
+class FirebaseUtils implements FirebaseUtilsI {
   static async uploadImage({
     path,
     buffer,
@@ -74,6 +116,35 @@ class FirebaseUtils {
     });
 
     return writeFilePromise;
+  }
+
+  static async bufferStreamToBuffer(
+    stream: NodeJS.ReadableStream
+  ): Promise<Buffer> {
+    const chunks: Uint8Array[] = [];
+    return new Promise((resolve, reject) => {
+      stream.on("data", (chunk) => chunks.push(chunk));
+      stream.on("end", () => resolve(Buffer.concat(chunks)));
+      stream.on("error", reject);
+    });
+  }
+
+  static async uploadBulkImages(
+    filesArray: ImageData[],
+    path: string
+  ): Promise<string[]> {
+    const promises = filesArray.map(async (imageData) => {
+      const bufferStream = new Base64Decode();
+      bufferStream.write(
+        imageData.base64String.replace(/^data:image\/\w+;base64,/, "")
+      );
+      bufferStream.end();
+
+      const buffer = await this.bufferStreamToBuffer(bufferStream);
+      return this.uploadImage({ path, buffer, type: imageData.type });
+    });
+
+    return Promise.all(promises);
   }
 
   static async saveFirebaseTokenToDatabase({
@@ -167,4 +238,4 @@ class FirebaseUtils {
   constructor() {}
 }
 
-export default FirebaseUtils;
+export { FirebaseUtils };

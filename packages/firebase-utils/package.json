@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@types/uuid": "^9.0.8",
+    "base64-stream": "^1.0.0",
     "firebase-admin": "^12.1.1",
     "tsup": "^8.1.0",
     "uuid": "^9.0.1"

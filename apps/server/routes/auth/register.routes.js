@@ -1,30 +1,29 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const router = express.Router();
 
-// const bcrypt = require("bcrypt");
-// const jwt = require("jsonwebtoken");
-
-const { ImageUploadHelper } = require("../../helper/imgUploadhelpter");
+const { FirebaseUtils } = require("firebase-utils");
 
 const UserModel = require("../../models/User.mode");
 const { globalErrorHandler } = require("../../utils");
 
-// const JWT_SECRET = process.env.JWT_SECRET;
-
-router.post("/register", async (req, res) => {
+router.post("/", async (req, res) => {
   const { name, email, phone, password, pic } = req.body;
 
   try {
-    const profilePic = await ImageUploadHelper.uploadBulkImages(
+    const profilePic = await FirebaseUtils.uploadBulkImages(
       pic,
       "/report_maker/profile"
     );
+
+    const salt = await bcrypt.genSalt(10);
+    let hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = await UserModel.create({
       name: name,
       email: email,
       phone: phone,
-      password: password,
+      password: hashedPassword,
       image: profilePic[0],
     });
 
