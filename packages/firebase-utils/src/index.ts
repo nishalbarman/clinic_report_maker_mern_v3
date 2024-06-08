@@ -88,7 +88,7 @@ declare class FirebaseUtilsI {
 }
 
 class FirebaseUtils implements FirebaseUtilsI {
-  static async uploadImage({
+  static async uploadBuffer({
     path,
     buffer,
     type,
@@ -141,7 +141,7 @@ class FirebaseUtils implements FirebaseUtilsI {
       bufferStream.end();
 
       const buffer = await this.bufferStreamToBuffer(bufferStream);
-      return this.uploadImage({ path, buffer, type: imageData.type });
+      return this.uploadBuffer({ path, buffer, type: imageData.type });
     });
 
     return Promise.all(promises);

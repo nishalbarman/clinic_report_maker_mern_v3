@@ -1,15 +1,61 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DeleteConfirmModal from "../modals/DeleteConfirmModal";
 import axios from "axios";
 import { handleGlobalError } from "../utils";
+import { ROLE } from "../roleEnumes";
+import { useAppSelector } from "../redux";
+
+type User = {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  role: number;
+  image: string;
+};
 
 function AuthUserList() {
+  const token = useAppSelector((state) => state.auth.token);
+
+  const [usersList, setUsersList] = useState<User[]>([]);
+
+  const [paginationPage, setPaginationPage] = useState<number>(0);
+  const [paginationLimit, setPaginationLimit] = useState<number>(30);
+
+  const fetchUserList = async () => {
+    try {
+      const url = new URL("/users/list", import.meta.env.VITE_SERVER_API);
+      url.searchParams.append("page", String(paginationPage));
+      url.searchParams.append("limit", String(paginationLimit));
+
+      const response = await axios.get(url.href, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setUsersList(response.data?.users || []);
+    } catch (error) {
+      handleGlobalError(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserList();
+  }, []);
+
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
 
   const handleDeleteUserRecord = useCallback(() => {
     try {
       const response = axios.delete(
-        `${process.env.VITE_SERVER_API}/user-auth-record/${deleteUserId}`
+        `${process.env.VITE_SERVER_API}/user-auth-record/${deleteUserId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     } catch (error) {
       handleGlobalError(error);
@@ -65,97 +111,108 @@ function AuthUserList() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                    {"SL. 1"}
-                  </td>
-                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                    <input
-                      type="text"
-                      // onChange={(e) => cardUpdate(e.target, "name", rp_dtl.id)}
-                      style={{
-                        backgroundColor: "transparent",
-                        border: "none",
-                        outline: "none",
-                        textAlign: "center",
-                        width: "170px",
-                      }}
-                      value={"test value"}
-                    />
-                  </td>
-                  <td
-                    style={{
-                      textAlign: "center",
-                      width: "16%",
-                      verticalAlign: "middle",
-                    }}>
-                    {"test_value@gmail.com"}
-                  </td>
-                  <td
-                    style={{
-                      textAlign: "center",
-                      width: "12%",
-                      verticalAlign: "middle",
-                    }}>
-                    <input
-                      type="number"
-                      // onChange={(e) => cardUpdate(e.target, "phone", rp_dtl.id)}
-                      style={{
-                        backgroundColor: "transparent",
-                        border: "none",
-                        outline: "none",
-                        textAlign: "center",
-                      }}
-                      value={"945554854"}
-                    />
-                  </td>
-                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                    <input
-                      type="text"
-                      // onChange={(e) => cardUpdate(e.target, "role", rp_dtl.id)}
-                      style={{
-                        backgroundColor: "transparent",
-                        border: "none",
-                        outline: "none",
-                        textAlign: "center",
-                        width: "100px",
-                      }}
-                      value={"User"}
-                    />
-                  </td>
-                  <td
-                    style={{
-                      textAlign: "center",
-                      width: "18%",
-                      verticalAlign: "middle",
-                    }}>
-                    <img
-                      // src={`../uploads/profile_pic/${rp_dtl.image}`}
-                      style={{
-                        backgroundColor: "transparent",
-                        border: "none",
-                        outline: "none",
-                        width: "50px",
-                        height: "50px",
-                      }}
-                      alt="profile-pic"
-                    />
-                  </td>
-                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                    <div className="btn-group">
-                      <button
-                        onClick={() => {
-                          setDeleteUserId("random-mongodb-id");
+                {usersList.map((item, index) => (
+                  <tr>
+                    <td
+                      style={{ textAlign: "center", verticalAlign: "middle" }}>
+                      {index + 1}
+                    </td>
+                    <td
+                      style={{ textAlign: "center", verticalAlign: "middle" }}>
+                      <input
+                        type="text"
+                        // onChange={(e) => cardUpdate(e.target, "name", rp_dtl.id)}
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          outline: "none",
+                          textAlign: "center",
+                          width: "170px",
                         }}
-                        type="button"
-                        className="btn btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#deleteConfirm">
-                        <span className="material-symbols-outlined">
-                          delete
-                        </span>
-                      </button>
-                      {/* <ul className="dropdown-menu">
+                        value={item.name}
+                      />
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "center",
+                        width: "16%",
+                        verticalAlign: "middle",
+                      }}>
+                      {item.email}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "center",
+                        width: "12%",
+                        verticalAlign: "middle",
+                      }}>
+                      <input
+                        type="number"
+                        // onChange={(e) => cardUpdate(e.target, "phone", rp_dtl.id)}
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          outline: "none",
+                          textAlign: "center",
+                        }}
+                        value={item.phone}
+                      />
+                    </td>
+                    <td
+                      style={{ textAlign: "center", verticalAlign: "middle" }}>
+                      <input
+                        type="text"
+                        // onChange={(e) => cardUpdate(e.target, "role", rp_dtl.id)}
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          outline: "none",
+                          textAlign: "center",
+                          width: "100px",
+                        }}
+                        value={
+                          item.role === ROLE.ADMIN
+                            ? "Admin"
+                            : item.role === ROLE.TECHNICIAN
+                              ? "Technician"
+                              : "User"
+                        }
+                      />
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "center",
+                        width: "18%",
+                        verticalAlign: "middle",
+                      }}>
+                      <img
+                        src={item.image}
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          outline: "none",
+                          width: "50px",
+                          height: "50px",
+                        }}
+                        alt="profile-pic"
+                      />
+                    </td>
+                    <td
+                      style={{ textAlign: "center", verticalAlign: "middle" }}>
+                      <div className="btn-group">
+                        <button
+                          onClick={() => {
+                            setDeleteUserId("random-mongodb-id");
+                          }}
+                          type="button"
+                          className="btn btn-sm"
+                          data-bs-toggle="modal"
+                          data-bs-target="#deleteConfirm">
+                          <span className="material-symbols-outlined">
+                            delete
+                          </span>
+                        </button>
+                        {/* <ul className="dropdown-menu">
                       <li>
                         <button
                           className="dropdown-item d-flex flex-row align-items-center gap-1"
@@ -169,9 +226,10 @@ function AuthUserList() {
                         </button>
                       </li>
                     </ul> */}
-                    </div>
-                  </td>
-                </tr>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

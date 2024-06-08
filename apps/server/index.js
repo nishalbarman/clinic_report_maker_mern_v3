@@ -33,14 +33,13 @@ app.use(express.json());
 app.use("/auth/login", require("./routes/auth/login.routes"));
 app.use("/auth/register", require("./routes/auth/register.routes"));
 
+app.use("/templates", require("./routes/templates/templates.routes"));
+app.use("/users", require("./routes/users/users.routes"));
+app.use("/patient-report", require("./routes/patient-report/patient-report.routes"));
+
 // Routes
 app.get("/", (req, res) => {
   res.send("Home Page");
-});
-
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.send("Logged out");
 });
 
 // Start server

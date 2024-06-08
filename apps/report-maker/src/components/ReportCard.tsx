@@ -1,10 +1,28 @@
-type ReportCardProps = {
-  title?: string;
-  price?: number;
-  onClick?: () => void;
+type Template = {
+  _id?: string;
+  cardName: string;
+  price: number;
+  url: string;
+  color_f: string;
+  color_s: string;
+  btn_name: string;
+  keywords: string;
+  new: boolean;
+  onClick: () => void;
 };
 
-const ReportCard: React.FC<ReportCardProps> = ({ title, price, onClick }) => {
+const ReportCard: React.FC<Template> = ({
+  _id,
+  cardName,
+  price,
+  url,
+  color_f,
+  color_s,
+  btn_name,
+  keywords,
+  new: isNew,
+  onClick = () => {},
+}) => {
   return (
     <div onClick={onClick} className="card">
       <div className="card-front">
@@ -12,8 +30,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ title, price, onClick }) => {
           className="card-front__tp card-front__tp--ski"
           data-card-bg=""
           style={{
-            backgroundImage:
-              "linear-gradient(rgb(69, 179, 193), rgb(49, 138, 150))",
+            backgroundImage: `linear-gradient(${color_f}, ${color_s}`,
           }}>
           <span
             className="material-symbols-outlined mb-3"
@@ -24,7 +41,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ title, price, onClick }) => {
             lab_profile
           </span>
           <h2 className="card-front__heading" card-title="">
-            {title}
+            {cardName}
           </h2>
           <p className="card-front__text-price" card-price="">
             Rs. {price} /-

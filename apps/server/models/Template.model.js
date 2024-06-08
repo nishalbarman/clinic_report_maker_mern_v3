@@ -1,10 +1,9 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const reportTemplateCardsSchema = new Schema(
+const templateSchema = new Schema(
   {
-    id: { type: Number, required: true, unique: true },
-    cardname: { type: String, required: true },
+    cardName: { type: String, required: true },
     price: { type: Number, required: true },
     url: { type: String, required: true },
     color_f: { type: String, required: true },
@@ -16,9 +15,6 @@ const reportTemplateCardsSchema = new Schema(
   { timestamps: true }
 );
 
-const ReportTemplateCardModel = mongoose.model(
-  "ReportTemplateCards",
-  reportTemplateCardsSchema
-);
+const TemplateModel = mongoose.model("report_template_cards", templateSchema);
 
-module.exports = ReportTemplateCardModel;
+module.exports = TemplateModel;

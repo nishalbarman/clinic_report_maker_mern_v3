@@ -1,12 +1,12 @@
-const getTokenDetails = require("../helpter/getTokenDetails");
-const { globalErrorHandler } = require("../utils");
+const { globalErrorHandler, getTokenDetails } = require("../utils");
 
 const checkRole = (...allowedRoles) => {
   // 0 = user, 1 = super-admin, 2 = admin, 3 =  technician
 
   return (req, res, next) => {
     try {
-      const token = req?.jwt?.token;
+      const token = req.get("Authorization");
+
       if (!token) {
         return globalErrorHandler({
           res,
@@ -15,11 +15,11 @@ const checkRole = (...allowedRoles) => {
         });
       }
 
-      const userDetails = getTokenDetails(token);
+      const userDetails = getTokenDetails(token.split("Bearer ")[1]);
       if (!userDetails) {
         return globalErrorHandler({
           res,
-          message: "Authentication Error: Token validation failed",
+          message: "Authentication Error: JWT validation failed",
           statusCode: 401,
         });
       }
@@ -27,14 +27,14 @@ const checkRole = (...allowedRoles) => {
       req.user = userDetails;
 
       if (allowedRoles.includes(userDetails.role)) {
-        req.jwt.role = userDetails?.role;
-        req.jwt.center = userDetails?.center;
+        console.log(userDetails);
         return next();
       }
 
       return globalErrorHandler({
         res,
-        message: "Authentication Error: Endpoint not allowed to this role",
+        message:
+          "Authentication Error: User not authorized for this endpoint with this role",
         statusCode: 401,
       });
     } catch (error) {

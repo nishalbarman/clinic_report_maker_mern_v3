@@ -6,17 +6,18 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginForm from "./pages/Auth/Login";
 import RegistrationForm from "./pages/Auth/Registration";
 import Header from "./headers/Header";
-import Templates from "./pages/Templates";
+import Templates from "./pages/CardTemplatesCards";
 import PatientReportsList from "./pages/PatientReportsList";
 import ProfileSetting from "./pages/ProfileSetting";
 import AuthUserList from "./pages/AuthUserList";
 import UploadReportManually from "./modals/UploadReportManually";
 import AddUserModal from "./modals/AddUserModal";
 
-import ReportCardRecords from "./pages/ReportCardRecords";
+import TemplateCardRecords from "./pages/TemplateCardRecords";
 import PrivateRoute from "./components/PrivateRoute";
 import { ROLE } from "./roleEnumes";
 import { useMemo } from "react";
+import DynamicForm from "./pages/DynamcPage";
 
 function App() {
   const dashboardAuthorizedRoles = useMemo(() => {
@@ -24,6 +25,14 @@ function App() {
   }, []);
 
   const templatesAuthorizedRoles = useMemo(() => {
+    return new Set([ROLE.ADMIN, ROLE.TECHNICIAN]);
+  }, []);
+
+  const patientReportListAuthorizedRoles = useMemo(() => {
+    return new Set([ROLE.ADMIN, ROLE.TECHNICIAN]);
+  }, []);
+
+  const onlyAdminAuthorized = useMemo(() => {
     return new Set([ROLE.ADMIN, ROLE.TECHNICIAN]);
   }, []);
 
@@ -40,6 +49,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/dynamic" element={<DynamicForm />} />
         <Route
           path="/templates"
           element={
@@ -48,13 +58,27 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/report-card-list" element={<ReportCardRecords />} />
-        <Route path="/patient-report-list" element={<PatientReportsList />} />
+        <Route
+          path="/report-card-list"
+          element={
+            <PrivateRoute authorizedRoles={onlyAdminAuthorized}>
+              <TemplateCardRecords />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/patient-report-list"
+          element={
+            <PrivateRoute authorizedRoles={patientReportListAuthorizedRoles}>
+              <PatientReportsList />
+            </PrivateRoute>
+          }
+        />
         <Route path="/profile-setting" element={<ProfileSetting />} />
         <Route
           path="/user-list"
           element={
-            <PrivateRoute authorizedRoles={new Set([ROLE.ADMIN])}>
+            <PrivateRoute authorizedRoles={patientReportListAuthorizedRoles}>
               <AuthUserList />
             </PrivateRoute>
           }

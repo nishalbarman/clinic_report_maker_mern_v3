@@ -1,5 +1,57 @@
+import { useEffect, useState } from "react";
+import { useAppSelector } from "../redux";
+import axios from "axios";
+import { handleGlobalError } from "../utils";
+import { ROLE } from "../roleEnumes";
+
+type Report = {
+  _id?: string;
+  sample_no: string;
+  technician: { name: string };
+  patient_name: string;
+  patient_age: string;
+  gender: string;
+  size: number;
+  downloads: number;
+  report_pdf: string;
+  createdAt?: string;
+};
+
 function ReportsList() {
-  const role = parseInt((localStorage.getItem("role") as string) || "1");
+  const token = useAppSelector((state) => state.auth.token);
+  const role = useAppSelector((state) => state.auth.role);
+
+  const [patientReportList, setPatientReportList] = useState<Report[]>([]);
+
+  console.log(patientReportList);
+
+  const [paginationPage, setPaginationPage] = useState<number>(0);
+  const [paginationLimit, setPaginationLimit] = useState<number>(30);
+
+  const fetchPatientReportDetails = async () => {
+    try {
+      const url = new URL(
+        "/patient-report/list",
+        import.meta.env.VITE_SERVER_API
+      );
+      url.searchParams.append("page", String(paginationPage));
+      url.searchParams.append("limit", String(paginationLimit));
+
+      const response = await axios.get(url.href, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setPatientReportList(response.data?.reports || []);
+    } catch (error) {
+      handleGlobalError(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPatientReportDetails();
+  }, []);
 
   return (
     <div className="container">
@@ -8,7 +60,7 @@ function ReportsList() {
           <h1 className="h2">Patient Reports</h1>
           <div className="btn-toolbar mb-2 mb-md-0">
             <div className="btn-group me-2">
-              {role === 1 && (
+              {role === ROLE.ADMIN && (
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-secondary"
@@ -45,7 +97,7 @@ function ReportsList() {
                 <th style={{ textAlign: "center" }} scope="col">
                   AGE
                 </th>
-                {role === 1 && (
+                {role === ROLE.ADMIN && (
                   <th style={{ textAlign: "center" }} scope="col">
                     TECHNICIAN
                   </th>
@@ -65,43 +117,83 @@ function ReportsList() {
               </tr>
             </thead>
             <tbody>
-              {/* Render each report */}
-              {/* Example: */}
-              {/* {reports.map((report) => (
-              <tr key={report.id}>
-                <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>{report.id}</td>
-                <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>{report.name}</td>
-                <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>{report.age}</td>
-                {role === 1 && (
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>{report.technician}</td>
-                )}
-                <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>{report.downloads} Times</td>
-                <td style={{ textAlign: 'left', verticalAlign: 'middle' }}>{report.created}</td>
-                <td className="hide-part" style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                  <div className="btn-group">
-                    <button type="button" className="btn  btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                      <span className="material-symbols-outlined">drive_file_rename_outline</span>
-                    </button>
-                    <ul className="dropdown-menu">
-                      <li><a className="dropdown-item" href={`reports.php?serial=${report.id}`}>
-                        <img style={{ width: 27, height: 27, marginRight: 5 }} src="../assets/table_dropdowns/download.png" />
-                        Download
-                      </a></li>
-                      <li><a className="dropdown-item" href={`delete.php?serial=${report.id}&file=${report.file_name}`}>
-                        <img style={{ width: 25, height: 25, marginRight: 5 }} src="../assets/table_dropdowns/remove.png" />
-                        Delete
-                      </a></li>
-                      <li><a className="dropdown-item" href={`changeFile.php?file=${report.file_name}`}>
-                        <img style={{ width: 24, height: 24, marginRight: 5 }} src="../assets/table_dropdowns/update.png" />
-                        Replace with Local
-                      </a></li>
-                      <li><hr className="dropdown-divider" /></li>
-                      <li><a className="dropdown-item" href={`preview.php?file=${btoa(report.file_name)}`}>Preview</a></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            ))} */}
+              {patientReportList.map((report, index) => (
+                <tr key={report._id}>
+                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                    {index + 1}
+                  </td>
+                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                    {report.patient_name}
+                  </td>
+                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                    {report.patient_age}
+                  </td>
+                  {role === ROLE.ADMIN && (
+                    <td
+                      style={{ textAlign: "center", verticalAlign: "middle" }}>
+                      {report.technician.name}
+                    </td>
+                  )}
+                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                    {report.downloads} Times
+                  </td>
+                  <td style={{ textAlign: "left", verticalAlign: "middle" }}>
+                    {report.createdAt}
+                  </td>
+                  <td
+                    className="hide-part"
+                    style={{ textAlign: "center", verticalAlign: "middle" }}>
+                    <div className="btn-group">
+                      {/* <button
+                        type="button"
+                        className="btn btn-sm"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <span className="material-symbols-outlined">
+                          drive_file_rename_outline
+                        </span>
+                      </button> */}
+                      <button
+                        // onClick={() => {
+                        //   handleReportDelete(report._id);
+                        // }}
+                        type="button"
+                        className="btn btn-sm"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <span className="material-symbols-outlined">
+                          delete
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => window.open(report.report_pdf, "_blank")}
+                        type="button"
+                        className="btn btn-sm"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <span className="material-symbols-outlined">
+                          visibility
+                        </span>
+                      </button>
+                      {/* <ul className="dropdown-menu"> */}
+                      {/* <li>
+                          <a
+                            className="dropdown-item d-flex align-items-center"
+                            download
+                            href={report.report_pdf}>
+                            Download
+                          </a>
+                        </li> */}
+
+                      {/* <li>
+                          <hr className="dropdown-divider" />
+                        </li>
+                        <li></li> */}
+                      {/* </ul> */}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
             <tfoot />
           </table>

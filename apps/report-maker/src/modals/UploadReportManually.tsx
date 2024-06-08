@@ -1,4 +1,93 @@
+import React, { SyntheticEvent, useState } from "react";
+import axios from "axios";
+import { useAppSelector } from "../redux";
+import { handleGlobalError } from "../utils";
+import { toast } from "react-toastify";
+
+type PatientReportDetails = {
+  sample_no: string;
+  patient_name: string;
+  age: string;
+  age_type: string;
+  gender: string;
+  report_pdf: string;
+};
+
 function UploadReportManually() {
+  const { token } = useAppSelector((state) => state.auth);
+
+  const [formData, setFormData] = useState<PatientReportDetails>({
+    sample_no: "",
+    patient_name: "",
+    age: "",
+    age_type: "",
+    gender: "",
+    report_pdf: "",
+  });
+
+  console.log(formData);
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, files } = e.target;
+    if (name === "report_pdf" && files && files[0]) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({
+          ...formData,
+          [name]: (reader.result as string)?.split(",")[1], // Get the base64 string without the metadata
+        });
+      };
+      reader.readAsDataURL(files[0]);
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleSelectChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const id = toast.loading("Uploading report, please wait...");
+    try {
+      const url = new URL(
+        "/patient-report/upload",
+        import.meta.env.VITE_SERVER_API
+      );
+      const response = await axios.post(url.href, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      toast.update(id, {
+        type: "success",
+        autoClose: 3000,
+        isLoading: false,
+        render: "Report uploaded.",
+      });
+      // Handle success, maybe reset the form or give a success message
+    } catch (error) {
+      handleGlobalError(error);
+      toast.update(id, {
+        type: "error",
+        autoClose: 3000,
+        isLoading: false,
+        render: "Report uploaded failed.",
+      });
+    }
+  };
+
   return (
     <div
       className="modal fade"
@@ -21,17 +110,18 @@ function UploadReportManually() {
           </div>
           <div className="modal-body">
             <div style={{ padding: "15px 20px 0px 20px" }}>
-              <form action="" method="post" id="manual-report-upload">
+              <form onSubmit={handleSubmit} id="manual-report-upload">
                 <div className="mb-3 d-flex flex-row gap-2">
                   <label className="pure-material-textfield-outlined">
                     <input
                       type="number"
                       className="form-control"
-                      aria-label="Serial"
+                      aria-label="Sample"
                       aria-describedby="inputGroup-sizing-lg"
-                      placeholder="Serial No"
-                      name="serial_no"
-                      value={""}
+                      placeholder="Sample No"
+                      name="sample_no"
+                      value={formData.sample_no}
+                      onChange={handleChange}
                     />
                   </label>
 
@@ -43,8 +133,8 @@ function UploadReportManually() {
                       aria-describedby="inputGroup-sizing-lg"
                       placeholder="Name"
                       name="patient_name"
-                      value={""}
-                      manual-upload-fields=""
+                      value={formData.patient_name}
+                      onChange={handleChange}
                     />
                   </label>
                 </div>
@@ -58,8 +148,8 @@ function UploadReportManually() {
                       aria-describedby="inputGroup-sizing-lg"
                       placeholder="Age"
                       name="age"
-                      value={""}
-                      manual-upload-fields=""
+                      value={formData.age}
+                      onChange={handleChange}
                     />
                   </label>
                   <div className="d-flex flex-row">
@@ -69,11 +159,12 @@ function UploadReportManually() {
                       {"->"}
                     </label>
                     <select
-                      name="age_back"
+                      name="age_type"
                       className="form-select"
                       id="inputGroupSelect01"
-                      manual-upload-fields="">
-                      <option value={""} selected={true}>
+                      value={formData.age_type}
+                      onChange={handleSelectChange}>
+                      <option value="" selected={true}>
                         Choose...
                       </option>
                       <option value="Years">Years</option>
@@ -92,8 +183,9 @@ function UploadReportManually() {
                     name="gender"
                     className="form-select"
                     id="inputGroupSelect01"
-                    manual-upload-fields="">
-                    <option value={""} selected={true}>
+                    value={formData.gender}
+                    onChange={handleSelectChange}>
+                    <option value="" selected={true}>
                       Choose...
                     </option>
                     <option value="Male">Male</option>
@@ -112,11 +204,11 @@ function UploadReportManually() {
                     type="file"
                     id="formFile"
                     accept="application/pdf"
-                    manual-upload-fields=""
+                    onChange={handleChange}
                   />
                 </div>
 
-                <div className="mb-3">
+                {/* <div className="mb-3">
                   <input
                     type="text"
                     className="form-control disabled"
@@ -124,27 +216,28 @@ function UploadReportManually() {
                     aria-label="Phone Number"
                     aria-describedby="basic-addon1"
                     name="technician"
-                    value={"<?php echo $_SESSION['name']; ?>"}
+                    value={formData.technician}
                     readOnly
                     disabled={true}
-                    manual-upload-fields=""
                   />
+                </div> */}
+                <div
+                  className="modal-footer"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    padding: 20,
+                  }}>
+                  <button
+                    id="manual-upload-btn"
+                    type="submit"
+                    style={{ width: "70%" }}
+                    className="btn btn-outline-success btn-lg">
+                    Submit
+                  </button>
                 </div>
               </form>
             </div>
-          </div>
-
-          <div
-            className="modal-footer"
-            style={{ display: "flex", justifyContent: "center", padding: 20 }}>
-            <button
-              id="manual-upload-btn"
-              type="submit"
-              style={{ width: "70%" }}
-              className="btn btn-outline-success btn-lg"
-              manual-upload-button="">
-              Submit
-            </button>
           </div>
         </div>
       </div>

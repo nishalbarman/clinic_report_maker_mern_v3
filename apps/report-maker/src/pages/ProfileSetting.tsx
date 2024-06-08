@@ -1,6 +1,10 @@
 import { BaseSyntheticEvent } from "react";
+import { useAppSelector } from "../redux";
+import { ROLE } from "../roleEnumes";
 
 const ProfileForm = () => {
+  const role = useAppSelector((state) => state.auth.role);
+
   const handleSubmit = (e: BaseSyntheticEvent) => {
     e.preventDefault();
     // Handle form submission logic
@@ -24,7 +28,7 @@ const ProfileForm = () => {
           </div>
         </div>
         <div className="right-container border">
-          <form onSubmit={handleSubmit} encType="multipart/form-data">
+          <form onSubmit={handleSubmit}>
             <header>
               <h1>Yay, Boii ! Change some setting, it don't really hearts!</h1>
               <div className="set">
@@ -107,26 +111,28 @@ const ProfileForm = () => {
                     <label htmlFor="pet-gender-male">Male</label>
                   </div>
                 </div>
-                <div className="pets-spayed-neutered">
-                  <label htmlFor="pet-spayed">Maintenance</label>
-                  <div className="radio-container">
-                    <input
-                      checked
-                      id="pet-spayed"
-                      name="maintenance"
-                      type="radio"
-                      value="true"
-                    />
-                    <label htmlFor="pet-spayed">True</label>
-                    <input
-                      id="pet-neutered"
-                      name="maintenance"
-                      type="radio"
-                      value="false"
-                    />
-                    <label htmlFor="pet-neutered">False</label>
+                {role === ROLE.ADMIN && (
+                  <div className="pets-spayed-neutered">
+                    <label htmlFor="pet-spayed">Maintenance</label>
+                    <div className="radio-container">
+                      <input
+                        checked
+                        id="pet-spayed"
+                        name="maintenance"
+                        type="radio"
+                        value="true"
+                      />
+                      <label htmlFor="pet-spayed">True</label>
+                      <input
+                        id="pet-neutered"
+                        name="maintenance"
+                        type="radio"
+                        value="false"
+                      />
+                      <label htmlFor="pet-neutered">False</label>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="set">
@@ -152,11 +158,13 @@ const ProfileForm = () => {
                 </div>
               </div>
 
-              <div className="pets-weight">
-                <label style={{ marginTop: "10px" }}>
-                  Status : {false ? "In Maintenance" : "Not In Maintenance"}
-                </label>
-              </div>
+              {role === ROLE.ADMIN && (
+                <div className="pets-weight">
+                  <label style={{ marginTop: "10px" }}>
+                    Status : {false ? "In Maintenance" : "Not In Maintenance"}
+                  </label>
+                </div>
+              )}
             </header>
             <footer>
               <div className="set">

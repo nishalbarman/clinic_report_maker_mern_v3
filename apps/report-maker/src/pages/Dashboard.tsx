@@ -1,33 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../css/card_styles.css";
 import ReportCard from "../components/ReportCard";
+import { useAppSelector } from "../redux";
+import { ROLE } from "../roleEnumes";
+import { handleGlobalError } from "../utils";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
-interface ReportDetail {
-  id: number;
+type Report = {
+  _id?: string;
+  sample_no: string;
+  technician: { name: string };
   patient_name: string;
-  patient_age: number;
-  created_by: string;
+  patient_age: string;
+  gender: string;
+  size: number;
   downloads: number;
-  creation_date: string | null;
-  file_name: string;
-}
+  report_pdf: string;
+  createdAt?: string;
+};
 
-interface Props {
-  role?: number;
-}
+const ReportList: React.FC = () => {
+  const token = useAppSelector((state) => state.auth.token);
+  const role = useAppSelector((state) => state.auth.role);
 
-const ReportList: React.FC<Props> = ({ role = -1 }) => {
-  const data: ReportDetail[] = [
-    {
-      id: 1,
-      patient_name: "John Doe",
-      patient_age: 30,
-      created_by: "Nishal",
-      downloads: 0,
-      creation_date: "dafdfad",
-      file_name: "filename",
-    },
-  ]; // Assuming you fetch the data from somewhere
+  const [patientReportList, setPatientReportList] = useState<Report[]>([]);
+
+  const [paginationPage, setPaginationPage] = useState<number>(0);
+  const [paginationLimit, setPaginationLimit] = useState<number>(30);
+
+  const fetchPatientReportDetails = async () => {
+    try {
+      const url = new URL(
+        "/patient-report/list",
+        import.meta.env.VITE_SERVER_API
+      );
+      url.searchParams.append("page", String(paginationPage));
+      url.searchParams.append("limit", String(paginationLimit));
+
+      const response = await axios.get(url.href, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setPatientReportList(response.data?.reports || []);
+    } catch (error) {
+      handleGlobalError(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPatientReportDetails();
+  }, []);
 
   return (
     <div className="container lets-do">
@@ -53,12 +78,6 @@ const ReportList: React.FC<Props> = ({ role = -1 }) => {
           </div>
           {/* Template Starts Here */}
           <section className="card-area" menu-cards="">
-            <ReportCard title="CBC" price={25} onClick={() => {}} />
-            <ReportCard title="Sugar" price={25} onClick={() => {}} />
-            <ReportCard title="Blood" price={25} onClick={() => {}} />
-            <ReportCard title="CBC" price={25} onClick={() => {}} />
-            <ReportCard title="CBC" price={25} onClick={() => {}} />
-
             {/* <span className="text-center text-[20px] font-bold " id="no-data">
                 No Data Found
               </span> */}
@@ -135,90 +154,79 @@ const ReportList: React.FC<Props> = ({ role = -1 }) => {
               </tr>
             </thead>
             <tbody>
-              {data.map((reportPatiantDetails) => (
-                <tr key={reportPatiantDetails.id}>
+              {patientReportList.map((report, index) => (
+                <tr key={report._id}>
                   <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                    {reportPatiantDetails.id}
+                    {index + 1}
                   </td>
                   <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                    {reportPatiantDetails.patient_name}
+                    {report.patient_name}
                   </td>
                   <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                    {reportPatiantDetails.patient_age}
+                    {report.patient_age}
                   </td>
-                  {role === 1 && (
+                  {role === ROLE.ADMIN && (
                     <td
-                      className="mobile-view"
-                      style={{
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                      }}>
-                      {reportPatiantDetails.created_by}
+                      style={{ textAlign: "center", verticalAlign: "middle" }}>
+                      {report.technician.name}
                     </td>
                   )}
+                  <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                    {report.downloads} Times
+                  </td>
+                  <td style={{ textAlign: "left", verticalAlign: "middle" }}>
+                    {report.createdAt}
+                  </td>
                   <td
-                    className="mobile-view"
+                    className="hide-part"
                     style={{ textAlign: "center", verticalAlign: "middle" }}>
-                    {reportPatiantDetails.downloads} Times
-                  </td>
-                  <td
-                    className="mobile-view"
-                    style={{ textAlign: "left", verticalAlign: "middle" }}>
-                    {reportPatiantDetails.creation_date
-                      ? reportPatiantDetails.creation_date
-                      : "00/00/0000 00:00:00 N/A"}
-                  </td>
-                  <td
-                    style={{ textAlign: "center", verticalAlign: "middle" }}
-                    className="hide-part">
-                    {/* Example single danger button */}
                     <div className="btn-group">
-                      <button
+                      {/* <button
                         type="button"
-                        className="btn btn-sm dropdown-toggle"
+                        className="btn btn-sm"
                         data-bs-toggle="dropdown"
                         aria-expanded="false">
                         <span className="material-symbols-outlined">
                           drive_file_rename_outline
                         </span>
+                      </button> */}
+                      <button
+                        // onClick={() => {
+                        //   handleReportDelete(report._id);
+                        // }}
+                        type="button"
+                        className="btn btn-sm"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <span className="material-symbols-outlined">
+                          delete
+                        </span>
                       </button>
-                      <ul className="dropdown-menu">
-                        <li>
-                          <button className="dropdown-item d-flex align-items-center justify-content-start flex-row gap-2">
-                            <span className="material-symbols-outlined">
-                              download
-                            </span>
-                            <span>Download</span>
-                          </button>
-                        </li>
-                        <li>
-                          <button className="dropdown-item d-flex align-items-center justify-content-start flex-row gap-2">
-                            <span className="material-symbols-outlined">
-                              delete
-                            </span>
-                            <span> Delete</span>
-                          </button>
-                        </li>
-                        <li>
-                          <button className="dropdown-item d-flex align-items-center flex-row ">
-                            <span className="material-symbols-outlined">
-                              upload_file
-                            </span>
-                            <span>Replace with Local</span>
-                          </button>
-                        </li>
-                        <li>
+                      <button
+                        onClick={() => window.open(report.report_pdf, "_blank")}
+                        type="button"
+                        className="btn btn-sm"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <span className="material-symbols-outlined">
+                          visibility
+                        </span>
+                      </button>
+                      {/* <ul className="dropdown-menu"> */}
+                      {/* <li>
+                          <a
+                            className="dropdown-item d-flex align-items-center"
+                            download
+                            href={report.report_pdf}>
+                            Download
+                          </a>
+                        </li> */}
+
+                      {/* <li>
                           <hr className="dropdown-divider" />
                         </li>
-                        <li>
-                          <button className="dropdown-item d-flex align-items-center justify-content-start flex-row gap-2">
-                            <span className="material-symbols-outlined">
-                              visibility
-                            </span>
-                            <span>Preview</span>
-                          </button>
-                        </li>
-                      </ul>
+                        <li></li> */}
+                      {/* </ul> */}
                     </div>
                   </td>
                 </tr>
@@ -227,11 +235,11 @@ const ReportList: React.FC<Props> = ({ role = -1 }) => {
             <tfoot>
               <tr className="hide-part">
                 <td colSpan={7} className="text-center">
-                  <a
+                  <Link
                     style={{ textDecoration: "none", color: "red" }}
-                    href={`report-list.php?id=${data[data.length - 1]?.id}&lid=${data[data.length - 1]?.id}`}>
+                    to={`/patient-report-list?page=2&limit=20`}>
                     View More
-                  </a>
+                  </Link>
                 </td>
               </tr>
             </tfoot>

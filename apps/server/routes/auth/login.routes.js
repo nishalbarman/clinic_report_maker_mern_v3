@@ -4,7 +4,7 @@ const router = express.Router();
 
 const jwt = require("jsonwebtoken");
 
-const UserModel = require("../../models/User.mode");
+const UserModel = require("../../models/User.model");
 const { globalErrorHandler } = require("../../utils");
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -34,6 +34,8 @@ router.post("/", async (req, res) => {
     const isPasswordMatched = bcrypt.compareSync(password, user.password);
 
     if (user && isPasswordMatched) {
+      console.log(user);
+
       const token = jwt.sign(
         {
           _id: user._id,

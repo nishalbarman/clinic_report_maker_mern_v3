@@ -4,7 +4,7 @@ const router = express.Router();
 
 const { FirebaseUtils } = require("firebase-utils");
 
-const UserModel = require("../../models/User.mode");
+const UserModel = require("../../models/User.model");
 const { globalErrorHandler } = require("../../utils");
 
 router.post("/", async (req, res) => {
