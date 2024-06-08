@@ -15,9 +15,10 @@ import AddUserModal from "./modals/AddUserModal";
 
 import TemplateCardRecords from "./pages/TemplateCardRecords";
 import PrivateRoute from "./components/PrivateRoute";
+import GenNewTemplate from "./pages/GenNewTemplate";
+
 import { ROLE } from "./roleEnumes";
 import { useMemo } from "react";
-import DynamicForm from "./pages/DynamcPage";
 
 function App() {
   const dashboardAuthorizedRoles = useMemo(() => {
@@ -49,7 +50,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/dynamic" element={<DynamicForm />} />
+        <Route path="/generate-new-template" element={<GenNewTemplate />} />
         <Route
           path="/templates"
           element={
