@@ -1,15 +1,13 @@
 // CKEditorComponent.tsx
 import React, { useCallback, useEffect, useRef } from "react";
+import ckeditor5 from "@ckeditor/vite-plugin-ckeditor5";
 
 interface CKEditorComponentProps {
   onChange: (data: string) => void;
   data?: string;
 }
 
-const CKEditorComponent: React.FC<CKEditorComponentProps> = ({
-  onChange,
-  data,
-}) => {
+const CKEditorComponent: React.FC<CKEditorComponentProps> = ({ onChange }) => {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const editorInstanceRef = useRef<any>(null);
 
@@ -29,7 +27,7 @@ const CKEditorComponent: React.FC<CKEditorComponentProps> = ({
           .then((editor: any) => {
             editorInstanceRef.current = editor;
             editor.model.document.on("change:data", handleEditorDataChange);
-            editor.setData(data);
+            // editor.setData(data);
           })
           .catch((error: any) => {
             console.error(
@@ -49,9 +47,13 @@ const CKEditorComponent: React.FC<CKEditorComponentProps> = ({
         });
       }
     };
-  }, [data, handleEditorDataChange]);
+  }, []);
 
-  return <div ref={editorRef} />;
+  return (
+    <>
+      <div ref={editorRef} />
+    </>
+  );
 };
 
 export default CKEditorComponent;

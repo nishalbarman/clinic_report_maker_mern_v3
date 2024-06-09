@@ -33,8 +33,20 @@ const globalErrorHandler = ({
       message: errArray.join(", "),
     });
   }
+
+  let errorMessage = "";
+  if (message) {
+    errorMessage = message;
+  } else if (error && error?.response?.message) {
+    errorMessage = error.response.message;
+  } else if (error && error?.message) {
+    errorMessage = error.message;
+  } else {
+    errorMessage = "Internal server error";
+  }
+
   return res.status(statusCode).json({
-    message: !message ? error.message : message || "Internal server error",
+    message: errorMessage,
   });
 };
 

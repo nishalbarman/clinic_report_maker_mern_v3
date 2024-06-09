@@ -19,6 +19,7 @@ import GenNewTemplate from "./pages/GenNewTemplate";
 
 import { ROLE } from "./roleEnumes";
 import { useMemo } from "react";
+import PdfGenerator from "./pages/PdfGenerator";
 
 function App() {
   const dashboardAuthorizedRoles = useMemo(() => {
@@ -59,6 +60,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/pdf" element={<PdfGenerator />} />
         <Route
           path="/report-card-list"
           element={
